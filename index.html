@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HOVE RUGBY CLUB | Player Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'header': ['Teko', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        hove: {
+                            bg: '#f8fafc',      // Light Slate (Body Background)
+                            card: '#ffffff',    // Pure White (Cards)
+                            border: '#e2e8f0',  // Slate 200 (Borders)
+                            maroon: '#9B2242',  // Hove Crest Maroon
+                            maroon_hover: '#7A1B34',
+                            blue: '#41A2DA',    // Hove Crest Blue
+                            text: '#0f172a',    // Slate 900 (Main Text)
+                            muted: '#64748b',   // Slate 500 (Subtitles)
+                            /* Macro Colors */
+                            protein: '#9B2242', 
+                            carbs: '#cbd5e1',   // Slate 300 (For contrast on white)
+                            fats: '#41A2DA'     
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; color: #0f172a; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; overflow-x: hidden; }
+        
+        /* Light, professional card design */
+        .flat-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); }
+        .accent-card { border-top: 4px solid #9B2242; }
+        
+        .input-field { width: 100%; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; padding: 14px 16px; border-radius: 6px; outline: none; transition: all 0.2s ease; font-weight: 500; font-size: 14px; }
+        .input-field:focus { border-color: #9B2242; box-shadow: 0 0 0 1px #9B2242; }
+        
+        .btn-primary { background: #9B2242; color: white; padding: 16px 24px; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; width: 100%; transition: background 0.2s; text-align: center; display: inline-block; cursor: pointer; border: none; box-shadow: 0 2px 4px rgba(155, 34, 66, 0.2); }
+        .btn-primary:hover { background: #7A1B34; }
+        .btn-primary:active { transform: scale(0.98); }
+        
+        /* Custom ranges/number inputs */
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        /* Floating Tab Styles */
+        .side-tab {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+        }
+        
+        /* Custom scrollbar for side panel */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9B2242; }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative">
+
+    <!-- FLOATING RECOVERY TAB -->
+    <button onclick="toggleRecoveryPanel()" class="fixed right-0 top-1/3 bg-hove-maroon hover:bg-hove-maroon_hover text-white font-bold text-sm py-4 px-2 rounded-l-md z-40 transition-transform shadow-lg shadow-hove-maroon/30 side-tab tracking-widest flex items-center justify-center border-y border-l border-hove-maroon">
+        100 PT RECOVERY
+    </button>
+
+    <!-- RECOVERY SLIDE-OUT PANEL -->
+    <div id="recovery-overlay" onclick="toggleRecoveryPanel()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="recovery-panel" class="fixed top-0 right-0 h-full w-80 sm:w-96 bg-white border-l border-hove-border shadow-2xl z-50 transform translate-x-full transition-transform duration-300 overflow-y-auto">
+        <div class="p-6 sm:p-8">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
+                <h2 class="font-header text-4xl text-hove-text tracking-wide leading-none m-0">RECOVERY<span class="text-hove-blue">.</span></h2>
+                <button onclick="toggleRecoveryPanel()" class="text-slate-400 hover:text-slate-700 text-3xl leading-none">&times;</button>
+            </div>
+            
+            <p class="text-xs text-hove-muted leading-relaxed mb-8">
+                Aim for <strong class="text-hove-text font-bold">100 points</strong> post-match or after intense training sessions to clear fatigue and maximize your readiness for the next battle.
+            </p>
+            
+            <div class="space-y-3">
+                <div class="bg-slate-50 p-4 rounded-md border-l-4 border-hove-maroon border border-slate-100 flex justify-between items-center">
+                    <span class="text-sm font-bold text-hove-text">💤 7-12h Sleep</span>
+                    <span class="text-xs font-bold text-hove-maroon bg-hove-maroon/10 px-2 py-1 rounded">50 pts</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-md border-l-4 border-slate-400 border border-slate-100 flex justify-between items-center">
+                    <span class="text-sm font-bold text-hove-text">🥩 High Protein Meal</span>
+                    <span class="text-xs font-bold text-slate-700 bg-slate-200 px-2 py-1 rounded">20 pts</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-md border-l-4 border-hove-blue border border-slate-100 flex justify-between items-center">
+                    <span class="text-sm font-bold text-hove-text">💧 3L Water + Salt</span>
+                    <span class="text-xs font-bold text-hove-blue bg-hove-blue/10 px-2 py-1 rounded">10 pts</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-md border-l-4 border-slate-300 border border-slate-100 flex justify-between items-center">
+                    <span class="text-sm font-bold text-hove-text">🧘‍♀️ 15m Stretching</span>
+                    <span class="text-xs font-bold text-slate-600 bg-slate-200 px-2 py-1 rounded">10 pts</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-md border-l-4 border-slate-300 border border-slate-100 flex justify-between items-center">
+                    <span class="text-sm font-bold text-hove-text">🛀 Cold/Heat Therapy</span>
+                    <span class="text-xs font-bold text-slate-600 bg-slate-200 px-2 py-1 rounded">10 pts</span>
+                </div>
+            </div>
+            
+            <div class="mt-8 bg-white border border-slate-200 shadow-sm p-5 rounded-md text-center">
+                <p class="text-[10px] text-hove-maroon font-bold uppercase tracking-widest mb-1">Target</p>
+                <p class="font-header text-5xl text-hove-text leading-none">100 PTS</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="image_a0d8c6.png" alt="Hove Rugby Logo" class="h-10 object-contain" onerror="this.style.display='none'">
+                <h1 class="font-header text-3xl text-hove-text leading-none m-0 tracking-wide mt-1">HOVE RUGBY <span class="text-hove-maroon text-xl leading-none">●</span></h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-4xl mx-auto w-full px-4 py-10 space-y-12">
+
+        <!-- INTRO SECTION -->
+        <section class="text-center space-y-3 pt-4">
+            <h2 class="font-header text-5xl sm:text-6xl text-hove-text uppercase tracking-wide">PERFORMANCE FUELING</h2>
+            <p class="text-hove-blue text-sm font-bold tracking-widest uppercase">"Hard work beats talent when talent doesn't work hard!"</p>
+        </section>
+
+        <!-- NUTRITION & READINESS CALCULATOR SECTION -->
+        <section id="nutrition">
+            <div class="flex items-center gap-3 mb-6">
+                <h2 class="font-header text-3xl text-hove-text tracking-wide m-0 leading-none mt-1">NUTRITION & READINESS CALCULATOR</h2>
+            </div>
+            
+            <div class="flat-card accent-card p-6 sm:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    
+                    <!-- Form -->
+                    <div class="space-y-5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-hove-muted uppercase mb-1.5">Gender</label>
+                                <select id="calc-gender" class="input-field cursor-pointer">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-hove-muted uppercase mb-1.5">Age</label>
+                                <input type="number" id="calc-age" class="input-field" placeholder="e.g. 17" min="14" max="60">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-hove-muted uppercase mb-1.5">Weight (kg)</label>
+                                <input type="number" id="calc-weight" class="input-field" placeholder="e.g. 80" step="0.1">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-hove-muted uppercase mb-1.5">Height (cm)</label>
+                                <input type="number" id="calc-height" class="input-field" placeholder="e.g. 180">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-hove-muted uppercase mb-1.5">Training Load</label>
+                            <select id="calc-activity" class="input-field cursor-pointer">
+                                <option value="1.2">Off-Season (Sedentary)</option>
+                                <option value="1.375">Light (1-3 sessions/wk)</option>
+                                <option value="1.55" selected>Moderate (3-5 sessions/wk)</option>
+                                <option value="1.725">Heavy (6+ sessions/wk)</option>
+                                <option value="1.9">Elite (2-a-days)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-hove-muted uppercase mb-1.5">Current Goal</label>
+                            <select id="calc-goal" class="input-field cursor-pointer border-l-4 border-l-hove-maroon">
+                                <option value="maintain" selected>Maintain / Peak Performance</option>
+                                <option value="bulk">Build Armor (Surplus)</option>
+                                <option value="cut">Drop Fat (Deficit)</option>
+                            </select>
+                        </div>
+
+                        <button onclick="calculateMacros()" class="btn-primary mt-2">GENERATE PROTOCOLS</button>
+                    </div>
+
+                    <!-- Results Panel -->
+                    <div id="results-panel" class="bg-slate-50 border border-slate-200 rounded-lg p-4 sm:p-6 flex flex-col justify-start items-center text-center transition-opacity duration-300 opacity-50 relative min-h-[400px]">
+                        
+                        <div id="results-placeholder" class="absolute inset-0 flex items-center justify-center bg-slate-50 z-10 rounded-lg">
+                            <p class="text-hove-muted text-xs font-bold uppercase tracking-widest">Awaiting Data...</p>
+                        </div>
+
+                        <!-- 3 Core Targets: Daily Cals, Weekly Cals, Hydration -->
+                        <div class="flex justify-between items-center w-full mb-4 z-0 relative">
+                            <div class="text-center flex-1">
+                                <p class="text-[9px] text-hove-muted font-bold uppercase tracking-widest mb-1">Daily Target</p>
+                                <div class="text-3xl sm:text-4xl font-header text-hove-maroon leading-none" id="result-cals">0</div>
+                                <p class="text-[8px] text-hove-muted tracking-widest mt-1">KCAL</p>
+                            </div>
+                            
+                            <div class="w-px h-8 bg-slate-300"></div>
+                            
+                            <div class="text-center flex-1">
+                                <p class="text-[9px] text-hove-muted font-bold uppercase tracking-widest mb-1">Weekly Target</p>
+                                <div class="text-3xl sm:text-4xl font-header text-hove-text leading-none" id="result-weekly-cals">0</div>
+                                <p class="text-[8px] text-hove-muted tracking-widest mt-1">KCAL</p>
+                            </div>
+
+                            <div class="w-px h-8 bg-slate-300"></div>
+
+                            <div class="text-center flex-1">
+                                <p class="text-[9px] text-hove-muted font-bold uppercase tracking-widest mb-1">Hydration</p>
+                                <div class="text-3xl sm:text-4xl font-header text-hove-blue leading-none" id="result-water">0</div>
+                                <p class="text-[8px] text-hove-muted tracking-widest mt-1">LITERS / DAY</p>
+                            </div>
+                        </div>
+
+                        <p class="text-[10px] text-hove-blue font-bold italic z-0 relative mb-1">*Add 500ml of water + electrolytes for every hour of intense sweating.</p>
+                        <p class="text-[10px] text-slate-500 italic z-0 relative mb-4">*Flexibility: Eat slightly more on heavy training days and slightly less on rest days, as long as you hit the weekly total.</p>
+
+                        <!-- Chart.js Container -->
+                        <div class="w-full h-28 mb-4 z-0 relative">
+                            <canvas id="macroChart"></canvas>
+                        </div>
+
+                        <div class="w-full grid grid-cols-3 gap-2 text-center border-t border-slate-200 pt-3 mb-4 z-0 relative">
+                            <div>
+                                <p class="text-[9px] text-hove-muted font-bold uppercase tracking-wider mb-0.5">Protein</p>
+                                <p class="text-sm font-bold text-hove-text" id="result-pro">0g</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-hove-muted font-bold uppercase tracking-wider mb-0.5">Carbs</p>
+                                <p class="text-sm font-bold text-hove-text" id="result-carb">0g</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-hove-muted font-bold uppercase tracking-wider mb-0.5">Fats</p>
+                                <p class="text-sm font-bold text-hove-text" id="result-fat">0g</p>
+                            </div>
+                        </div>
+
+                        <!-- Readiness Prescription Box (Sleep & Stress) -->
+                        <div id="readiness-box" class="w-full bg-white border border-slate-200 shadow-sm rounded-md p-3 text-left hidden">
+                            <p class="text-[10px] text-hove-maroon font-bold uppercase tracking-widest border-b border-slate-100 pb-1 mb-2">Readiness Prescription</p>
+                            <div class="mb-2">
+                                <span class="text-[9px] text-hove-muted font-bold uppercase tracking-widest block">Pillar 1: Sleep</span>
+                                <span class="text-xs text-hove-text font-medium" id="result-sleep">--</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] text-hove-muted font-bold uppercase tracking-widest block">Pillar 4: Recovery & Stress</span>
+                                <span class="text-xs text-hove-text font-medium leading-tight" id="result-recovery">--</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-8 mt-12 text-center">
+        <h2 class="font-header text-2xl text-slate-700 tracking-wide">HOVE RUGBY CLUB</h2>
+        <p class="text-[10px] text-slate-500 font-bold tracking-widest uppercase mt-1">High Performance Academy</p>
+    </footer>
+
+    <!-- LOGIC SCRIPTS -->
+    <script>
+        // Drawer Toggle Logic
+        function toggleRecoveryPanel() {
+            const panel = document.getElementById('recovery-panel');
+            const overlay = document.getElementById('recovery-overlay');
+            
+            if (panel.classList.contains('translate-x-full')) {
+                panel.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    overlay.classList.add('opacity-100');
+                }, 10);
+            } else {
+                panel.classList.add('translate-x-full');
+                overlay.classList.remove('opacity-100');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        let macroChartInstance = null;
+
+        function calculateMacros() {
+            const age = parseInt(document.getElementById('calc-age').value);
+            const gender = document.getElementById('calc-gender').value;
+            const weight = parseFloat(document.getElementById('calc-weight').value);
+            const height = parseFloat(document.getElementById('calc-height').value);
+            const activity = parseFloat(document.getElementById('calc-activity').value);
+            const goal = document.getElementById('calc-goal').value;
+
+            if(!age || !weight || !height) {
+                alert("Please fill in your Age, Weight, and Height to generate the protocol.");
+                return;
+            }
+
+            // 1. Calories (Mifflin-St Jeor)
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+            bmr += (gender === 'male') ? 5 : -161;
+            let tdee = bmr * activity;
+            let targetCalories = tdee;
+            
+            // RED-S Protection (Females on a cut get a safer, smaller deficit)
+            if (goal === 'cut') {
+                if (gender === 'female') {
+                    targetCalories -= 300; 
+                } else {
+                    targetCalories -= 500;
+                }
+            } else if (goal === 'bulk') {
+                targetCalories += 400;
+            }
+
+            // Growth & Puberty Buffer (Adding 150kcal for developing athletes)
+            if (age < 18) {
+                targetCalories += 150;
+            }
+
+            targetCalories = Math.round(targetCalories);
+            const weeklyCalories = targetCalories * 7;
+
+            // 2. Macros
+            const protein = Math.round(weight * 2.2); 
+            let fats = Math.round(weight * 1.0); 
+            const proteinCals = protein * 4;
+            let fatCals = fats * 9;
+            let remainingCals = targetCalories - proteinCals - fatCals;
+            let carbs = Math.max(0, Math.round(remainingCals / 4));
+
+            // Carb Floor Protection (Glycolytic Sport Requirement: Min 3g/kg)
+            const minCarbs = Math.round(weight * 3.0);
+            if (carbs < minCarbs) {
+                carbs = minCarbs;
+                // Recalculate fats if we had to bump carbs up, but don't drop below 0.8g/kg for hormone health
+                const neededCarbCals = carbs * 4;
+                fatCals = targetCalories - proteinCals - neededCarbCals;
+                fats = Math.max(Math.round(weight * 0.8), Math.round(fatCals / 9));
+            }
+
+            // 3. Hydration (Pillar 3) - Adjusted for behavioral compliance
+            // Base: 30ml per kg. Plus max 1L adjustment for training load.
+            let extraWater = 0;
+            if (activity == 1.375) extraWater = 0.25;
+            else if (activity == 1.55) extraWater = 0.5;
+            else if (activity == 1.725) extraWater = 0.75;
+            else if (activity == 1.9) extraWater = 1.0;
+
+            let hydration = ((weight * 30) / 1000) + extraWater;
+            hydration = hydration.toFixed(1);
+
+            // 4. Sleep Prescription (Pillar 1)
+            let sleepRec = "";
+            if (age < 18 && activity >= 1.55) {
+                sleepRec = "9-10 Hours (Critical for growth phase & CNS repair)";
+            } else if (age < 18) {
+                sleepRec = "8-9 Hours minimum (Growth phase)";
+            } else if (age >= 18 && activity >= 1.55) {
+                sleepRec = "8-9 Hours (Required for intense training loads)";
+            } else {
+                sleepRec = "8 Hours minimum";
+            }
+
+            // 5. Recovery Prescription (Pillar 4)
+            let recoveryRec = "";
+            if (activity < 1.5) {
+                recoveryRec = "Active recovery (walking, light cycling) & mobility flows to prep tissues for the season.";
+            } else if (activity < 1.7) {
+                recoveryRec = "100-Point Recovery Game: Prioritize post-training protein, 15m stretching, and hydration.";
+            } else {
+                recoveryRec = "Max CNS Protection: Strict 100-Point Recovery required. Aggressive fueling & down-regulation non-negotiable.";
+            }
+
+            // 6. Update UI
+            document.getElementById('results-placeholder').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('results-placeholder').style.display = 'none';
+            }, 300);
+
+            const panel = document.getElementById('results-panel');
+            panel.classList.remove('opacity-50');
+            panel.classList.add('opacity-100');
+
+            // Text Updates
+            animateValue("result-cals", targetCalories);
+            animateValue("result-weekly-cals", weeklyCalories);
+            document.getElementById('result-water').innerText = hydration + "L";
+            
+            document.getElementById('result-pro').innerText = protein + 'g';
+            document.getElementById('result-fat').innerText = fats + 'g';
+            document.getElementById('result-carb').innerText = carbs + 'g';
+
+            document.getElementById('result-sleep').innerText = sleepRec;
+            document.getElementById('result-recovery').innerText = recoveryRec;
+            
+            // Show the Readiness Box
+            document.getElementById('readiness-box').classList.remove('hidden');
+            
+            // Render Chart
+            renderChart(proteinCals, carbs * 4, fats * 9);
+
+            // Smooth scroll to results on mobile
+            if(window.innerWidth < 768) {
+                setTimeout(() => {
+                    document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+
+        // Render Chart.js Doughnut
+        function renderChart(proCals, carbCals, fatCals) {
+            const ctx = document.getElementById('macroChart').getContext('2d');
+            
+            if (macroChartInstance) {
+                macroChartInstance.destroy();
+            }
+
+            Chart.defaults.color = '#64748b'; // Slate 500 for general chart text
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
+            macroChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Protein', 'Carbs', 'Fats'],
+                    datasets: [{
+                        data: [proCals, carbCals, fatCals],
+                        backgroundColor: [
+                            '#9B2242', // Hove Maroon (Protein)
+                            '#cbd5e1', // Slate 300 (Carbs - light gray to contrast with white bg)
+                            '#41A2DA'  // Hove Blue (Fats)
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#f8fafc', // Match the slate-50 background of the panel
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'rect',
+                                font: { weight: 'bold', size: 10 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100) + '%';
+                                    return ` ${context.label}: ${percentage}`;
+                                }
+                            },
+                            backgroundColor: '#ffffff',
+                            titleColor: '#0f172a',
+                            bodyColor: '#64748b',
+                            borderColor: '#e2e8f0',
+                            titleFont: { size: 12, family: "'Inter', sans-serif" },
+                            bodyFont: { size: 11 },
+                            padding: 10,
+                            cornerRadius: 6,
+                            borderWidth: 1
+                        }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true,
+                        duration: 800
+                    }
+                }
+            });
+        }
+
+        // Simple number animation function
+        function animateValue(id, end, duration = 800) {
+            const obj = document.getElementById(id);
+            let start = parseInt(obj.innerText.replace(/,/g, '')) || 0;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentVal = Math.floor(easeOut * (end - start) + start);
+                obj.innerHTML = currentVal.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+    </script>
+</body>
+</html>
